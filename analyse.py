@@ -365,7 +365,7 @@ def plot_success(ball_pos, ball_pos_raw):
         #labels = (rod['successes'], rod['retries'], rod['total']-rod['successes']-rod['retries'])
         #plt.pie(fracs, labels=labels, shadow=True, colors=('g', 'b', 'r'))
     
-    def print_rod_pie(team, active_rod, ax):
+    def from_to_statistics(team, active_rod):
         if team == 'Red':
             rod = team_red[np.where(team_rod==active_rod)[0]]
             off_2er = rod_def[0]
@@ -402,32 +402,34 @@ def plot_success(ball_pos, ball_pos_raw):
         turnover_3er = from_to(ball_pos, rod, def_3er)
         own_goals = from_to(ball_pos, rod, def_goal)
         total_def = turnover_2er + turnover_5er + turnover_3er + own_goals
-        print team, active_rod, '(', rod, ') = ', total
+        #print team, active_rod, '(', rod, ') = ', total
         #print total_off, '=', pass2er, pass5er, pass3er, goals
         #print total_def, '=', turnover_2er, turnover_5er, turnover_3er, own_goals
-        # plot
-        if active_rod == 'Defense':
-            fracs  = (goals, pass3er, pass5er, pass2er,
-                    turnover_2er, turnover_5er, turnover_3er, own_goals)
-            labels = ('goal', '3er', '5er', 'retry',
-                    'to 2er', 'to 5er', 'to_3er', 'own goal')
-            print fracs, labels
-            #plt.pie(fracs, labels=labels, shadow=True, 
-            colors=('g', 'b', '0.5', '0.5',
-                    'y',  'y', 'tab:orange', 'r')
-            plot_bar2(fracs, labels, colors, xpos=1.0, width=0.65, legend=True, ax=ax)
+        return (own_goals, turnover_3er, turnover_5er, turnover_2er,
+                pass2er, pass5er, pass3er, goals)
 
-    #the_grid = GridSpec(2, 3)
-    
     # plot
     fig, ax = plt.subplots(figsize=(3, 3))#, dpi=100)
     fig.subplots_adjust(left=0.3, right=0.98, top=0.75, bottom=0.1)
+
+    # Defense
+    fracs  = from_to_statistics('Red', 'Defense')
+    #(goals, pass3er, pass5er, pass2er,
+    #        turnover_2er, turnover_5er, turnover_3er, own_goals)
+    labels =  ('own goal', 'turnover 3er', 'turnover 5er', 'turnover_2er',
+             'retry', 'pass 5er', 'pass 3er', 'goal')
+    print fracs, labels
+    colors=('r', 'tab:orange', 'y', 'y',
+            '0.5', '0.5', 'b', 'g')
+    plot_bar2(fracs, labels, colors, xpos=1.0, width=0.65, legend=True, ax=ax)
+
+    #the_grid = GridSpec(2, 3)
+    
     
     #plt.subplot(the_grid[0, 0], aspect=1)
     
     print ax 
     
-    print_rod_pie('Red', 'Defense', ax=ax)
     #print_rod_pie('Red', 'Midfield')
     #print_rod_pie('Red', 'Forward')
     #print_rod_pie('Blue', 'Defense')
