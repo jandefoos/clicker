@@ -1,7 +1,7 @@
-'''analyse cicks
+'''analyse clicks
 
 Usage:
-    analyse_clicks.py (--input=<input>)
+    analyse.py (--input=<input>)
 
 Options:
     --input=<input>             npy-file
@@ -21,14 +21,16 @@ from docopt import docopt
 key_assign = np.array(['0', 'r', 'd', 'f', 'g', 'h', 'j', 'k', 'u'])
 # code assign   array(['0', '1', '2', '3', '4', '5', '6', '7', '8'])
 team = ('Defense', 'Midfield', 'Forward')
+team_rod = np.array(['Defense', 'Midfield', 'Forward'])
 team_color = ('g', 'b', 'r')
 teams = ('Red', 'Blue')
 teams_color = ('r', 'b')
-team_red = (2, 4, 6)
-team_blu = (7, 5, 3)
+team_red = np.array([2, 4, 6])
+team_blu = np.array([7, 5, 3])
 rod_def = (2, 7)
 rod_5er = (4, 5)
 rod_3er = (6, 3)
+goal = (8, 1)
 
 
 
@@ -116,7 +118,7 @@ def plot_timeline(time_pos, ball_pos):
     ax.set_yticklabels(y_tick_labels)
 
     # save
-    save_name = 'output/' + file_name[:-4] + '_ball_positionen' + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_ball_positionen' + '.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
@@ -211,7 +213,7 @@ def plot_posession(time_pos, ball_pos, time_diff):
         ax.set_xticklabels(x_tick_labels)
 
         # save
-        save_name = 'output/' + file_name[:-4] + '_ball_team_' + value + '.pdf'
+        save_name = 'out/' + file_name[4:-4] + '_ball_team_' + value + '.pdf'
         fig.savefig(save_name)
         print "evince", save_name, "&"
 
@@ -244,7 +246,7 @@ def plot_posession(time_pos, ball_pos, time_diff):
         ax.set_xticklabels(x_tick_labels)
 
         # save
-        save_name = 'output/' + file_name[:-4] + '_ball_rods_' + value + '.pdf'
+        save_name = 'out/' + file_name[4:-4] + '_ball_rods_' + value + '.pdf'
         fig.savefig(save_name)
         print "evince", save_name, "&"
 
@@ -257,6 +259,32 @@ def success(ball_pos, rod_start, rod_end):
     retries = len(np.where(ball_pos[index+1] == rod_start)[0])
     return {'successes': successes, 'retries': retries, 'total': total, 'rate': 1.*successes/total}
 
+def from_to(ball_pos, rod_start, rod_end):
+    index = np.where(ball_pos==rod_start)[0]
+    successes = len(np.where(ball_pos[index+1] == rod_end)[0])
+    return successes
+
+# stacked histo
+def plot_bar2(values, labels, colors, xpos, width, legend, ax):
+    bottom = 0
+    for index, value in enumerate(values):
+        plt.bar(xpos, value, width, bottom=bottom,
+                label=labels[index], color=colors[index])
+        bottom += value
+        if legend == True:
+            print 'test'
+
+            if value != 0:
+                print 'test'
+                ax.text(xpos, bottom - 0.5, labels[index],
+                        horizontalalignment='center', verticalalignment='center')
+        #plt.legend()
+        #ax.legend(            
+        #handles, labels = ax.get_legend_handles_labels()
+        #ax.legend(handles[::-1], labels[::-1],
+        #    loc='upper center', bbox_to_anchor=(0.5, 1.4),
+        #    ncol=1, fancybox=True)#, shadow=True))#, title='Line', loc='upper left')
+
 ##########################################################################3
 def plot_success(ball_pos, ball_pos_raw):
     # TODO: plot or table 
@@ -266,12 +294,8 @@ def plot_success(ball_pos, ball_pos_raw):
     #print "red 5er", success(ball_pos, 4, 6)
     #print "def red", success(ball_pos, 6, 7)
 
-    # plot
-    fig, ax = plt.subplots(figsize=(3, 3))#, dpi=100)
-    fig.subplots_adjust(left=0.3, right=0.98, top=0.75, bottom=0.1)
-    the_grid = GridSpec(2, 2)
 
-    def plot_pie(rod_start, rod_end):
+    def plot_success_pie(rod_start, rod_end):
         rod = success(ball_pos, rod_start, rod_end)
         print "result", rod
         successes = 100.*rod['successes']/rod['total']
@@ -281,31 +305,174 @@ def plot_success(ball_pos, ball_pos_raw):
         print fracs
         labels = (rod['successes'], rod['retries'], rod['total']-rod['successes']-rod['retries'])
         plt.pie(fracs, labels=labels, shadow=True, colors=('g', 'b', 'r'))
+    
+    def plot_catch_pie(rod_start, rod_end):
+        # block 3-3, catch 3-2, goals 3-1
+        rod = success(ball_pos, rod_start, rod_end)
+        print "result", rod
+        successes = 100.*rod['successes']/rod['total']
+        retries = 100.*rod['retries']/rod['total']
+        fails = 100.*(rod['total']-rod['successes']-rod['retries'])/rod['total']
+        fracs  = (successes, retries, fails)
+        print fracs
+        labels = (rod['successes'], rod['retries'], rod['total']-rod['successes']-rod['retries'])
+        plt.pie(fracs, labels=labels, shadow=True, colors=('g', 'b', 'r'))
+    
+    def plot_defense_pie(team):
+        print team
+        if team == 'Red':
+            off_2er = rod_def[0]
+            off_5er = rod_5er[0]
+            off_3er = rod_3er[0]
+            off_goal = goal[0]
+            def_2er = rod_def[1]
+            def_5er = rod_5er[1]
+            def_3er = rod_3er[1]
+            def_goal = goal[1]
+        elif team == 'Blue':
+            off_2er = rod_def[1]
+            off_5er = rod_5er[1]
+            off_3er = rod_3er[1]
+            off_goal = goal[1]
+            def_2er = rod_def[0]
+            def_5er = rod_5er[0]
+            def_3er = rod_3er[0]
+            def_goal = goal[0]
+        else: 
+            exit()
+        # total ball posession
+        total = posession(time_pos, ball_pos, time_diff, off_2er)['counts']
+        # positive offense play by 2 rod defense 
+        retries = from_to(ball_pos, off_2er, off_2er)
+        pass5er = from_to(ball_pos, off_2er, off_5er)
+        pass3er = from_to(ball_pos, off_2er, off_3er)
+        goals = from_to(ball_pos, off_2er, off_goal)
+        # positive offense play by 2 rod defense 
+        turnover_2er = from_to(ball_pos, off_2er, def_2er)
+        turnover_5er = from_to(ball_pos, off_2er, def_5er)
+        turnover_3er = from_to(ball_pos, off_2er, def_3er)
+        own_goals = from_to(ball_pos, off_2er, def_goal)
+        print total
+        print retries, pass5er, pass3er, goals
+        print turnover_2er, turnover_5er, turnover_3er, own_goals
+        
+        #print "result", rod
+        #successes = 100.*rod['successes']/rod['total']
+        #retries = 100.*rod['retries']/rod['total']
+        #fails = 100.*(rod['total']-rod['successes']-rod['retries'])/rod['total']
+        #fracs  = (successes, retries, fails)
+        #print fracs
+        #labels = (rod['successes'], rod['retries'], rod['total']-rod['successes']-rod['retries'])
+        #plt.pie(fracs, labels=labels, shadow=True, colors=('g', 'b', 'r'))
+    
+    def print_rod_pie(team, active_rod, ax):
+        if team == 'Red':
+            rod = team_red[np.where(team_rod==active_rod)[0]]
+            off_2er = rod_def[0]
+            off_5er = rod_5er[0]
+            off_3er = rod_3er[0]
+            off_goal = goal[0]
+            def_2er = rod_def[1]
+            def_5er = rod_5er[1]
+            def_3er = rod_3er[1]
+            def_goal = goal[1]
+        elif team == 'Blue':
+            rod = team_blu[team_rod==active_rod]
+            off_2er = rod_def[1]
+            off_5er = rod_5er[1]
+            off_3er = rod_3er[1]
+            off_goal = goal[1]
+            def_2er = rod_def[0]
+            def_5er = rod_5er[0]
+            def_3er = rod_3er[0]
+            def_goal = goal[0]
+        else:
+            exit()
+        # total ball posession
+        total = posession(time_pos, ball_pos, time_diff, rod)['counts']
+        # positive offense play by 2 rod defense 
+        pass2er = from_to(ball_pos, rod, off_2er)
+        pass5er = from_to(ball_pos, rod, off_5er)
+        pass3er = from_to(ball_pos, rod, off_3er)
+        goals = from_to(ball_pos, rod, off_goal)
+        total_off = pass2er + pass5er + pass3er + goals
+        # positive offense play by 2 rod defense 
+        turnover_2er = from_to(ball_pos, rod, def_2er)
+        turnover_5er = from_to(ball_pos, rod, def_5er)
+        turnover_3er = from_to(ball_pos, rod, def_3er)
+        own_goals = from_to(ball_pos, rod, def_goal)
+        total_def = turnover_2er + turnover_5er + turnover_3er + own_goals
+        print team, active_rod, '(', rod, ') = ', total
+        #print total_off, '=', pass2er, pass5er, pass3er, goals
+        #print total_def, '=', turnover_2er, turnover_5er, turnover_3er, own_goals
+        # plot
+        if active_rod == 'Defense':
+            fracs  = (goals, pass3er, pass5er, pass2er,
+                    turnover_2er, turnover_5er, turnover_3er, own_goals)
+            labels = ('goal', '3er', '5er', 'retry',
+                    'to 2er', 'to 5er', 'to_3er', 'own goal')
+            print fracs, labels
+            #plt.pie(fracs, labels=labels, shadow=True, 
+            colors=('g', 'b', '0.5', '0.5',
+                    'y',  'y', 'tab:orange', 'r')
+            plot_bar2(fracs, labels, colors, xpos=1.0, width=0.65, legend=True, ax=ax)
 
+    #the_grid = GridSpec(2, 3)
+    
+    # plot
+    fig, ax = plt.subplots(figsize=(3, 3))#, dpi=100)
+    fig.subplots_adjust(left=0.3, right=0.98, top=0.75, bottom=0.1)
+    
+    #plt.subplot(the_grid[0, 0], aspect=1)
+    
+    print ax 
+    
+    print_rod_pie('Red', 'Defense', ax=ax)
+    #print_rod_pie('Red', 'Midfield')
+    #print_rod_pie('Red', 'Forward')
+    #print_rod_pie('Blue', 'Defense')
+    #print_rod_pie('Blue', 'Midfield')
+    #print_rod_pie('Blue', 'Forward')
+    
+    
+    
+    
+    
+    
     # red offense
-    plt.subplot(the_grid[0, 0], aspect=1)
-    plt.title('red: 5-3')
-    plot_pie(4, 6)
-    plt.subplot(the_grid[1, 0], aspect=1)
-    plt.title('red: 3-goal')
-    plot_pie(6, 8)
+    #plt.subplot(the_grid[0, 0], aspect=1)
+    #plt.title('red: 5-3')
+    #plot_success_pie(4, 6)
+    #plt.subplot(the_grid[1, 0], aspect=1)
+    #plt.title('red: 3-goal')
+    #plot_success_pie(6, 8)
 
     # blue offense
-    plt.subplot(the_grid[0, 1], aspect=1)
-    plt.title('blue: 5-3')
-    plot_pie(5, 3)
-    plt.subplot(the_grid[1, 1], aspect=1)
-    plt.title('blue: 3-goal')
-    plot_pie(3, 1)
+    #plt.subplot(the_grid[0, 1], aspect=1)
+    #plt.title('blue: 5-3')
+    #plot_success_pie(5, 3)
+    #plt.subplot(the_grid[1, 1], aspect=1)
+    #plt.title('blue: 3-goal')
+    #plot_success_pie(3, 1)
 
-    # red defense offense
-    # retries, 3er, 5er, def, goals
-    
     # red defense defense
-    # block, catch, goals
+    #plt.subplot(the_grid[0, 2], aspect=1)
+    #plt.title('red: 3-catch')
+    #plot_catch_pie(3, 2)
+    #plt.subplot(the_grid[1, 2], aspect=1)
+    #plt.title('blue: 3-goal')
+    #plot_pie(3, 1)
+    
+    # defense offense
+    #plt.subplot(the_grid[0, 3], aspect=1)
+    #plt.title('red def')
+    #plt.subplot(the_grid[1, 3], aspect=1)
+    #plt.title('blue def')
+    #plot_defense_pie(3, 1)
+    
 
     # save
-    save_name = 'output/' + file_name[:-4] + '_success' + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_success' + '.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
