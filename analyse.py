@@ -334,14 +334,13 @@ def plot_bar2(values, labels, colors, xpos, width, legend, ax):
 
 def plot_success(ball_pos, ball_pos_raw):
     # from to statistics
-
-
     # plot
     fig, ax = plt.subplots(figsize=(9, 3))#, dpi=100)
     fig.subplots_adjust(left=0.1, right=0.98, top=0.97, bottom=0.3)
 
     for position, index in ball.items(): # note: not ordered dict iter
         #print position, index
+        plt.xticks(index, position, rotation='90')
         if position == 'Blue Goal' or position == 'Red Goal':
             fracs = posession(time_pos, ball_pos, time_diff, position)['counts']
             labels = str(fracs)
