@@ -272,10 +272,7 @@ def plot_bar2(values, labels, colors, xpos, width, legend, ax):
                 label=labels[index], color=colors[index])
         bottom += value
         if legend == True:
-            print 'test'
-
             if value != 0:
-                print 'test'
                 ax.text(xpos, bottom - 0.5, labels[index],
                         horizontalalignment='center', verticalalignment='center')
         #plt.legend()
