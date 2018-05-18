@@ -40,11 +40,13 @@ team_rod = np.array(['Defense', 'Midfield', 'Forward'])
 team_color = ('g', 'b', 'r')
 teams = ('Red', 'Blue')
 teams_color = ('r', 'b')
+
 team_red = np.array([2, 4, 6])
 team_blu = np.array([7, 5, 3])
 rod_def = (2, 7)
 rod_5er = (4, 5)
 rod_3er = (6, 3)
+
 goal = (8, 1)
 
 
@@ -143,8 +145,8 @@ def goals(ball_pos, team):
 
 
 ##########################################################################3
-def posession(time_pos, ball_pos, time_diff, rod):
-    rod_posessions = time_diff[np.where(ball_pos==rod)[0]]
+def posession(time_pos, ball_pos, time_diff, position):
+    rod_posessions = time_diff[np.where(ball_pos==ball[position])[0]]
     # counts, total_time, average
     return {'counts': len(rod_posessions),  # absolut
             'time': np.sum(rod_posessions), # seconds
@@ -153,12 +155,12 @@ def posession(time_pos, ball_pos, time_diff, rod):
 ##########################################################################3
 def plot_posession(time_pos, ball_pos, time_diff):
     # times
-    red_abw = posession(time_pos, ball_pos, time_diff, 2)
-    blu_3er = posession(time_pos, ball_pos, time_diff, 3)
-    red_5er = posession(time_pos, ball_pos, time_diff, 4)
-    blu_5er = posession(time_pos, ball_pos, time_diff, 5)
-    red_3er = posession(time_pos, ball_pos, time_diff, 6)
-    blu_abw = posession(time_pos, ball_pos, time_diff, 7)
+    red_abw = posession(time_pos, ball_pos, time_diff, 'Red Defense')
+    blu_3er = posession(time_pos, ball_pos, time_diff, 'Blue Forward')
+    red_5er = posession(time_pos, ball_pos, time_diff, 'Red Midfield')
+    blu_5er = posession(time_pos, ball_pos, time_diff, 'Blue Midfield')
+    red_3er = posession(time_pos, ball_pos, time_diff, 'Red Forward')
+    blu_abw = posession(time_pos, ball_pos, time_diff, 'Blue Defense')
     # total
     total_counts = 1.* red_abw['counts'] + blu_3er['counts'] + red_5er['counts'] + blu_5er['counts'] + red_3er['counts'] + blu_abw['counts']
     total_time = 1.* red_abw['time'] + blu_3er['time'] + red_5er['time'] + blu_5er['time'] + red_3er['time'] + blu_abw['time']
@@ -266,11 +268,55 @@ def plot_posession(time_pos, ball_pos, time_diff):
         print "evince", save_name, "&"
 
 ##########################################################################3
+##########################################################################3
+##########################################################################3
 
 def from_to(ball_pos, rod_start, rod_end):
-    index = np.where(ball_pos==rod_start)[0]
-    successes = len(np.where(ball_pos[index+1] == rod_end)[0])
+    index = np.where(ball_pos==ball[rod_start])[0]
+    successes = len(np.where(ball_pos[index+1] == ball[rod_end])[0])
     return successes
+
+def from_to_statistics(from_position):
+    if from_position[:3] == 'Red':
+        print from_position
+        off_2er =  'Red Defense'
+        off_5er =  'Red Midfield'
+        off_3er =  'Red Forward'
+        off_goal = 'Red Goal'
+        def_2er =  'Blue Defense'
+        def_5er =  'Blue Midfield'
+        def_3er =  'Blue Forward'
+        def_goal = 'Blue Goal'
+    elif from_position[:4] == 'Blue':
+        off_2er =  'Blue Defense'
+        off_5er =  'Blue Midfield'
+        off_3er =  'Blue Forward'
+        off_goal = 'Blue Goal'
+        def_2er =  'Red Defense'
+        def_5er =  'Red Midfield'
+        def_3er =  'Red Forward'
+        def_goal = 'Red Goal'
+    else:
+        exit()
+    # total ball posession
+    total = posession(time_pos, ball_pos, time_diff, from_position)['counts']
+    # positive offense play by 2 rod defense 
+    pass2er = from_to(ball_pos, from_position, off_2er)
+    pass5er = from_to(ball_pos, from_position, off_5er)
+    pass3er = from_to(ball_pos, from_position, off_3er)
+    goals = from_to(ball_pos, from_position, off_goal)
+    total_off = pass2er + pass5er + pass3er + goals
+    # positive offense play by 2 rod defense 
+    turnover_2er = from_to(ball_pos, from_position, def_2er)
+    turnover_5er = from_to(ball_pos, from_position, def_5er)
+    turnover_3er = from_to(ball_pos, from_position, def_3er)
+    own_goals = from_to(ball_pos, from_position, def_goal)
+    total_def = turnover_2er + turnover_5er + turnover_3er + own_goals
+    #print team, active_rod, '(', rod, ') = ', total
+    #print total_off, '=', pass2er, pass5er, pass3er, goals
+    #print total_def, '=', turnover_2er, turnover_5er, turnover_3er, own_goals
+    return (own_goals, turnover_3er, turnover_5er, turnover_2er,
+            pass2er, pass5er, pass3er, goals)
 
 # stacked histo
 def plot_bar2(values, labels, colors, xpos, width, legend, ax):
@@ -285,53 +331,10 @@ def plot_bar2(values, labels, colors, xpos, width, legend, ax):
                         horizontalalignment='center', verticalalignment='center')
 
 ##########################################################################3
+
 def plot_success(ball_pos, ball_pos_raw):
-    # TODO: plot or table 
     # from to statistics
 
-    def from_to_statistics(team, active_rod):
-        if team == 'Red':
-            rod = team_red[np.where(team_rod==active_rod)[0]]
-            off_2er = rod_def[0]
-            off_5er = rod_5er[0]
-            off_3er = rod_3er[0]
-            off_goal = goal[0]
-            def_2er = rod_def[1]
-            def_5er = rod_5er[1]
-            def_3er = rod_3er[1]
-            def_goal = goal[1]
-        elif team == 'Blue':
-            rod = team_blu[team_rod==active_rod]
-            off_2er = rod_def[1]
-            off_5er = rod_5er[1]
-            off_3er = rod_3er[1]
-            off_goal = goal[1]
-            def_2er = rod_def[0]
-            def_5er = rod_5er[0]
-            def_3er = rod_3er[0]
-            def_goal = goal[0]
-        else:
-            exit()
-        # total ball posession
-        # TODO: improve posession funtion
-        total = posession(time_pos, ball_pos, time_diff, rod)['counts']
-        # positive offense play by 2 rod defense 
-        pass2er = from_to(ball_pos, rod, off_2er)
-        pass5er = from_to(ball_pos, rod, off_5er)
-        pass3er = from_to(ball_pos, rod, off_3er)
-        goals = from_to(ball_pos, rod, off_goal)
-        total_off = pass2er + pass5er + pass3er + goals
-        # positive offense play by 2 rod defense 
-        turnover_2er = from_to(ball_pos, rod, def_2er)
-        turnover_5er = from_to(ball_pos, rod, def_5er)
-        turnover_3er = from_to(ball_pos, rod, def_3er)
-        own_goals = from_to(ball_pos, rod, def_goal)
-        total_def = turnover_2er + turnover_5er + turnover_3er + own_goals
-        #print team, active_rod, '(', rod, ') = ', total
-        #print total_off, '=', pass2er, pass5er, pass3er, goals
-        #print total_def, '=', turnover_2er, turnover_5er, turnover_3er, own_goals
-        return (own_goals, turnover_3er, turnover_5er, turnover_2er,
-                pass2er, pass5er, pass3er, goals)
 
     # plot
     fig, ax = plt.subplots(figsize=(9, 3))#, dpi=100)
@@ -340,24 +343,24 @@ def plot_success(ball_pos, ball_pos_raw):
     for position, index in ball.items(): # note: not ordered dict iter
         #print position, index
         if position == 'Blue Goal' or position == 'Red Goal':
-            fracs = posession(time_pos, ball_pos, time_diff, ball[position])['counts']
+            fracs = posession(time_pos, ball_pos, time_diff, position)['counts']
             labels = str(fracs)
             # Blue Goal
             if position == 'Blue Goal':
                 colors = 'b'
             elif position == 'Red Goal':
                 colors = 'r'
-            plot_bar2([fracs], [labels], colors, xpos=ball[position], width=0.65, legend=True, ax=ax)
+            plot_bar2([fracs], [labels], colors, xpos=index, width=0.65, legend=True, ax=ax)
         if position == 'Red Defense' or position == 'Blue Defense':
             labels =  ('own goal', 'turnover 3er', 'turnover 5er', 'turnover_2er',
                      'retry', 'pass 5er', 'pass 3er', 'goal')
             colors=('r', 'tab:orange', 'y', 'y',
                     '0.5', '0.5', 'b', 'g')
             if position == 'Red Defense':
-                fracs  = from_to_statistics('Red', 'Defense')
+                fracs  = from_to_statistics('Red Defense')
             elif position == 'Blue Defense':
-                fracs  = from_to_statistics('Blue', 'Defense')
-            plot_bar2(fracs, labels, colors, xpos=ball[position], width=0.65, legend=True, ax=ax)
+                fracs  = from_to_statistics('Blue Defense')
+            plot_bar2(fracs, labels, colors, xpos=index, width=0.65, legend=True, ax=ax)
 
         if position == 'Red Midfield' or position == 'Blue Midfield':
             labels =  ('own goal', 'turnover 3er', 'turnover 5er', 'turnover_2er',
@@ -365,10 +368,10 @@ def plot_success(ball_pos, ball_pos_raw):
             colors=('r', 'tab:orange', 'y', 'y',
                     '0.5', 'b', 'b', 'g')
             if position == 'Red Midfield':
-                fracs  = from_to_statistics('Red', 'Midfield')
+                fracs  = from_to_statistics('Red Midfield')
             elif position == 'Blue Midfield':
-                fracs  = from_to_statistics('Blue', 'Midfield')
-            plot_bar2(fracs, labels, colors, xpos=ball[position], width=0.65, legend=True, ax=ax)
+                fracs  = from_to_statistics('Blue Midfield')
+            plot_bar2(fracs, labels, colors, xpos=index, width=0.65, legend=True, ax=ax)
 
         if position == 'Red Forward' or position == 'Blue Forward':
             labels =  ('own goal', 'turnover 3er', 'turnover 5er', 'turnover_2er',
@@ -376,10 +379,10 @@ def plot_success(ball_pos, ball_pos_raw):
             colors=('r', 'tab:orange', 'y', 'y',
                     '0.5', '0.5', 'b', 'g')
             if position == 'Red Forward':
-                fracs  = from_to_statistics('Red', 'Forward')
+                fracs  = from_to_statistics('Red Forward')
             elif position == 'Blue Forward':
-                fracs  = from_to_statistics('Blue', 'Forward')
-            plot_bar2(fracs, labels, colors, xpos=ball[position], width=0.65, legend=True, ax=ax)
+                fracs  = from_to_statistics('Blue Forward')
+            plot_bar2(fracs, labels, colors, xpos=index, width=0.65, legend=True, ax=ax)
 
     # TODO: x labels
     # TODO: opt. team colors
