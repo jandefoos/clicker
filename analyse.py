@@ -122,7 +122,7 @@ def from_to(ball_pos, rod_start, rod_end):
 
 ##########################################################################3
 
-def from_to_statistics(from_position):
+def from_to_statistics(time_pos, ball_pos, time_diff, from_position):
     if from_position[:3] == 'Red':
         off_2er =  'Red Defense'
         off_5er =  'Red Midfield'
@@ -178,7 +178,7 @@ def plot_bar(values, labels, colors, xpos, width, legend, ax):
                         horizontalalignment='center', verticalalignment='center')
 # stacked histo
 # rod_cfg: selection 
-def plot_bar_selection(rod_cfg, parameter, xpos, width, legend, option, ax):
+def plot_bar_selection(time_pos, ball_pos, time_diff, rod_cfg, parameter, xpos, width, legend, option, ax):
     bottom = 0
     for index, value in enumerate(rod_cfg):
         rod = posession(time_pos, ball_pos, time_diff, value)
@@ -198,11 +198,7 @@ def plot_bar_selection(rod_cfg, parameter, xpos, width, legend, option, ax):
 ##########################################################################3
 ##########################################################################3
 
-def plot_timeline(time_pos, ball_pos, clicks):
-    # clean zeroes 
-    #index = np.where(ball_pos==0.0)[0]
-    #print index
-    #ball_pos[index] = ball_pos[index-1]
+def plot_timeline(time_pos, ball_pos, ball_pos_raw):
     # for plot v2
     ball_pos2 = np.zeros(2*len(time_pos))
     time_pos2 = np.zeros(2*len(time_pos))
@@ -270,7 +266,6 @@ def plot_timeline(time_pos, ball_pos, clicks):
     break_index = np.where(ball_pos_raw == key_assign['Game Break'])[0]
     next_index = break_index + 2
     for index in range(len(break_index)):
-        print index
         ax.axvspan(xmin=time_pos[break_index][index], xmax=time_pos[next_index][index],
                 #alpha=0.75, 
                 color='0.5', lw=0)
@@ -298,7 +293,7 @@ def plot_timeline(time_pos, ball_pos, clicks):
     ax.set_yticklabels(y_tick_labels)
 
     # save
-    save_name = 'out/' + file_name[4:-4] + '_ball_positionen' + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_ball_positions' + '.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
@@ -307,7 +302,7 @@ def plot_timeline(time_pos, ball_pos, clicks):
 ##########################################################################3
 ##########################################################################3
 
-def plot_posession(time_pos, ball_pos, time_diff):
+def plot_posession(time_pos, ball_pos, time_diff, game):
     # times
     red_abw = posession(time_pos, ball_pos, time_diff, 'Red Defense')
     blu_3er = posession(time_pos, ball_pos, time_diff, 'Blue Forward')
@@ -343,9 +338,11 @@ def plot_posession(time_pos, ball_pos, time_diff):
         fig, ax = plt.subplots(figsize=(2, 3))#, dpi=100)
         fig.subplots_adjust(left=0.3, right=0.98, top=0.75, bottom=0.1)
 
-        plot_bar_selection(team_red, value, xpos=2.0, width=0.65,
+        plot_bar_selection(time_pos, ball_pos, time_diff,
+                team_red, value, xpos=1.0, width=0.65,
                 legend=True,  option='team', ax=ax)
-        plot_bar_selection(team_blu, value, xpos=2.0, width=0.65,
+        plot_bar_selection(time_pos, ball_pos, time_diff,
+                team_blu, value, xpos=2.0, width=0.65,
                 legend=False, option='team', ax=ax)
 
         # x-axis: time 
@@ -366,7 +363,7 @@ def plot_posession(time_pos, ball_pos, time_diff):
             ax.grid(which = 'minor')
 
         # save
-        save_name = 'out/' + file_name[4:-4] + '_ball_team_' + value + '.pdf'
+        save_name = 'out/' + file_name[4:-4] + '_ball_team_' + value +  '_' + game +'.pdf'
         fig.savefig(save_name)
         print "evince", save_name, "&"
 
@@ -376,11 +373,14 @@ def plot_posession(time_pos, ball_pos, time_diff):
         fig, ax = plt.subplots(figsize=(2, 3))#, dpi=100)
         fig.subplots_adjust(left=0.3, right=0.98, top=0.75, bottom=0.1)
 
-        plot_bar_selection(rod_def, value, xpos=1.0, width=0.65,
+        plot_bar_selection(time_pos, ball_pos, time_diff,
+                rod_def, value, xpos=1.0, width=0.65,
                 legend=True,  option='rod', ax=ax)
-        plot_bar_selection(rod_5er, value, xpos=2.0, width=0.65,
+        plot_bar_selection(time_pos, ball_pos, time_diff,
+                rod_5er, value, xpos=2.0, width=0.65,
                 legend=False, option='rod', ax=ax)
-        plot_bar_selection(rod_3er, value, xpos=3.0, width=0.65,
+        plot_bar_selection(time_pos, ball_pos, time_diff,
+                rod_3er, value, xpos=3.0, width=0.65,
                 legend=False, option='rod', ax=ax)
 
         # x-axis: time 
@@ -403,7 +403,7 @@ def plot_posession(time_pos, ball_pos, time_diff):
             ax.grid(which = 'minor')
 
         # save
-        save_name = 'out/' + file_name[4:-4] + '_ball_rods_' + value + '.pdf'
+        save_name = 'out/' + file_name[4:-4] + '_ball_rods_' + value + '_' + game + '.pdf'
         fig.savefig(save_name)
         print "evince", save_name, "&"
 
@@ -411,7 +411,7 @@ def plot_posession(time_pos, ball_pos, time_diff):
 ##########################################################################3
 ##########################################################################3
 
-def plot_success(ball_pos):
+def plot_success(time_pos, ball_pos, time_diff, game):
     # from to statistics
     # plot
     fig, ax = plt.subplots(figsize=(9, 6))#, dpi=100)
@@ -434,9 +434,9 @@ def plot_success(ball_pos):
             colors=('r', 'tab:orange', 'y', 'y',
                     '0.5', '0.5', 'b', 'g')
             if position == 'Red Defense':
-                fracs  = from_to_statistics('Red Defense')
+                fracs  = from_to_statistics(time_pos, ball_pos, time_diff, 'Red Defense')
             elif position == 'Blue Defense':
-                fracs  = from_to_statistics('Blue Defense')
+                fracs  = from_to_statistics(time_pos, ball_pos, time_diff, 'Blue Defense')
             plot_bar(fracs, labels, colors, xpos=index, width=0.65, legend=True, ax=ax)
 
         if position == 'Red Midfield' or position == 'Blue Midfield':
@@ -445,9 +445,9 @@ def plot_success(ball_pos):
             colors=('r', 'tab:orange', 'y', 'y',
                     '0.5', 'b', 'b', 'g')
             if position == 'Red Midfield':
-                fracs  = from_to_statistics('Red Midfield')
+                fracs  = from_to_statistics(time_pos, ball_pos, time_diff, 'Red Midfield')
             elif position == 'Blue Midfield':
-                fracs  = from_to_statistics('Blue Midfield')
+                fracs  = from_to_statistics(time_pos, ball_pos, time_diff, 'Blue Midfield')
             plot_bar(fracs, labels, colors, xpos=index, width=0.65, legend=True, ax=ax)
 
         if position == 'Red Forward' or position == 'Blue Forward':
@@ -456,14 +456,14 @@ def plot_success(ball_pos):
             colors=('r', 'tab:orange', 'y', 'y',
                     '0.5', '0.5', 'b', 'g')
             if position == 'Red Forward':
-                fracs  = from_to_statistics('Red Forward')
+                fracs  = from_to_statistics(time_pos, ball_pos, time_diff, 'Red Forward')
             elif position == 'Blue Forward':
-                fracs  = from_to_statistics('Blue Forward')
+                fracs  = from_to_statistics(time_pos, ball_pos, time_diff, 'Blue Forward')
             plot_bar(fracs, labels, colors, xpos=index, width=0.65, legend=True, ax=ax)
 
     # x labels
     tick_names = list(ball.keys())
-    print tick_names
+    #print tick_names
     x_positions = [ball[name] for name in tick_names]
     plt.xticks(x_positions, tick_names, rotation='45')
     # options
@@ -477,14 +477,14 @@ def plot_success(ball_pos):
     # TODO: opt. team colors
 
     # save
-    save_name = 'out/' + file_name[4:-4] + '_success' + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_success_' + game + '.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
 ##########################################################################3
 ##########################################################################3
 
-def plot_goals(time_pos, ball_pos, clicks, games):
+def plot_goals(time_pos, ball_pos, clicks, game):
     # plot
     fig, ax = plt.subplots(figsize=(4, 3))#, dpi=100)
     fig.subplots_adjust(left=0.15, right=0.98, top=0.97, bottom=0.15)
@@ -511,7 +511,7 @@ def plot_goals(time_pos, ball_pos, clicks, games):
     ax.grid(which = 'minor')
 
     # save
-    save_name = 'out/' + file_name[4:-4] + '_goals_' + games + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_goals_' + game + '.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
@@ -531,6 +531,10 @@ if __name__ == "__main__":
     plot_timeline(time_pos, ball_pos, ball_pos_raw)
     # goals timeline
     plot_goals(time_pos, ball_pos, ball_pos_raw, 'total')
+    # ball posession
+    plot_posession(time_pos, ball_pos, time_diff, 'total')
+    # shoot/defense statistics
+    plot_success(time_pos, ball_pos, time_diff, 'total')
 
     # per game
     games_start_index = np.append(0, np.where(ball_pos_raw == key_assign['Game Break'])[0] + 2)
@@ -540,16 +544,18 @@ if __name__ == "__main__":
             time_pos_game = time_pos[value:]
             ball_pos_game = ball_pos[value:]
             ball_pos_raw_game = ball_pos_raw[value:]
+            time_diff_game = time_diff[value:]
         else:
             time_pos_game = time_pos[value:games_start_index[index+1]]
             ball_pos_game = ball_pos[value:games_start_index[index+1]]
             ball_pos_raw_game = ball_pos_raw[value:games_start_index[index+1]]
+            time_diff_game = time_diff[value:games_start_index[index+1]]
+        name = 'game ' + str(index + 1)
         # goals timeline
-        plot_goals(time_pos_game, ball_pos_game, ball_pos_raw_game, 'game ' + str(index + 1))
+        plot_goals(time_pos_game, ball_pos_game, ball_pos_raw_game, name)
+        # ball posession
+        plot_posession(time_pos_game, ball_pos_game, time_diff_game, name)
+        # shoot/defense statistics
+        plot_success(time_pos_game, ball_pos_game, time_diff_game, name)
 
-    # ball posession
-    plot_posession(time_pos, ball_pos, time_diff)
-
-    # shoot/defense statistics
-    plot_success(ball_pos)
 
