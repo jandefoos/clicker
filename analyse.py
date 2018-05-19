@@ -206,6 +206,10 @@ def plot_timeline(time_pos, ball_pos):
 
     # TODO:
     # Tore
+    goals = [ball_pos == 'Red Goal']
+    next_position = [ball_pos == 'Red Goal'] + 1
+    ax.axvspan(xmin=time_pos[goals], xmax=time_pos[next_position], alpha=0.75, color='r', lw=0)
+
     #ax.text(0.05, 0.9, timeline_text,
     #        transform=ax.transAxes, verticalalignment='top', horizontalalignment='left')
     # Aus
