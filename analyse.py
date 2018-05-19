@@ -1,10 +1,10 @@
 '''analyse clicks
 
 Usage:
-    analyse.py (--input=<input>)
+    analyse.py (--logfile=<input>)
 
 Options:
-    --input=<input>             npy-file
+    --logfile=<input>           npy-file
     -h --help                   show usage of this script
     -v --version                show the version of this script
 '''
@@ -19,18 +19,22 @@ from docopt import docopt
 ########################################################
 
 key_assign = {
-    'Null' :            '0',
-    'Blue Goal' :       'r',
+    'Out' :             'space',
+    'Blue Goal' :       's',
     'Red Defense' :     'd',
     'Blue Forward' :    'f',
     'Red Midfield' :    'g',
     'Blue Midfield' :   'h',
     'Red Forward' :     'j',
     'Blue Defense' :    'k',
-    'Red Goal' :        'u'}
+    'Red Goal' :        'l',
+    'Game Break' :      'Return',
+    'Red Timeout' :     't',
+    'Blue Timeout' :    'y',
+    }
 
 ball = {
-    'Null' :            0,
+    'Out' :            0,
     'Blue Goal' :       1,
     'Red Defense' :     2,
     'Blue Forward' :    3,
@@ -38,7 +42,11 @@ ball = {
     'Blue Midfield' :   5,
     'Red Forward' :     6,
     'Blue Defense' :    7,
-    'Red Goal' :        8}
+    'Red Goal' :        8,
+    'Game Break' :      9,
+    'Red Timeout' :     10,
+    'Blue Timeout' :    11
+    }
 
 
 team = ('Defense', 'Midfield', 'Forward')
@@ -59,30 +67,47 @@ rod_3er = ('Red Forward', 'Blue Forward')
 # read data and 'constructor'
 def proc_data(file_name):
     # data
-    arguments = docopt(__doc__, version='analyze clicker')
-    file_name = arguments['--input']
     print "Loading log file:", file_name
     data = np.loadtxt(file_name, delimiter=';', skiprows=0, dtype={
         'names': ('times', 'clicks'),
         'formats': ('float64', 'S9')})
+    # start, end
+    # first Midfield posession
+    start = np.where((data['clicks'] == key_assign['Red Midfield']) |
+            (data['clicks'] == key_assign['Blue Midfield']) |
+            (data['clicks'] == key_assign['Game Break'])
+            )[0][0]
+    # until Control L = exit program
+    #end = np.where((data['clicks'] == 'Control_L'))[0][-1]
+    # until last goal
+    end = np.where((data['clicks'] == key_assign['Red Goal']) |
+            (data['clicks'] == key_assign['Blue Goal'])
+            )[0][-1] + 3 # to have the score
+    times = data['times'][start:end]
+    clicks = data['clicks'][start:end]
     # time proc.
-    time_pos = data['times'] - data['times'][0]
-    time_diff = data['times'][1:] - data['times'][:-1]
+    time_pos = times - times[0]
+    time_diff = times[1:] - times[:-1]
     # data proc.
-    # for plot
-    ball_pos = np.zeros(len(data['clicks']))
+    ball_pos = np.zeros(len(clicks))
+    # here happens the key-ball assignment
     for name, value in key_assign.items():
-        ball_pos[np.where(data['clicks']==value)[0]] = ball[name]
-    ball_pos[np.where(ball_pos==0.0)[0]] = 4.5
+        ball_pos[np.where(clicks == value)[0]] = ball[name]
+    # clean zeroes for plotting
+    index = np.where(ball_pos == 0.0)[0]
+    ball_pos[index] = 4.5 # ball_pos[index-1]
 
-    return time_pos, ball_pos, data['clicks'], time_diff
+    #print time_pos, ball_pos, clicks, time_diff
+    #print len(time_pos), len(ball_pos), len(clicks), len(time_diff)
+    #print clicks[ball_pos == 0.0] # should be only numbers from goals and sets and timeouts
+    return time_pos, ball_pos, clicks, time_diff
 
 
 
 ##########################################################################3
 
 def posession(time_pos, ball_pos, time_diff, position):
-    rod_posessions = time_diff[np.where(ball_pos==ball[position])[0]]
+    rod_posessions = time_diff[np.where(ball_pos == ball[position])[0]]
     # counts, total_time, average
     return {'counts': len(rod_posessions),  # absolut
             'time': np.sum(rod_posessions), # seconds
@@ -173,7 +198,11 @@ def plot_bar_selection(rod_cfg, parameter, xpos, width, legend, option, ax):
 ##########################################################################3
 ##########################################################################3
 
-def plot_timeline(time_pos, ball_pos):
+def plot_timeline(time_pos, ball_pos, clicks):
+    # clean zeroes 
+    #index = np.where(ball_pos==0.0)[0]
+    #print index
+    #ball_pos[index] = ball_pos[index-1]
     # for plot v2
     ball_pos2 = np.zeros(2*len(time_pos))
     time_pos2 = np.zeros(2*len(time_pos))
@@ -189,7 +218,7 @@ def plot_timeline(time_pos, ball_pos):
     fig, ax = plt.subplots(figsize=(6, 2))#, dpi=100)
     fig.subplots_adjust(left=0.1, right=0.98, top=0.95, bottom=0.2)
 
-    # spielfeld
+    # table
     ax.axhspan(ymin=1.0, ymax=1.5, alpha=0.75, color='b', lw=0)
     ax.axhspan(ymin=1.5, ymax=2.5, alpha=0.5, color='r', lw=0)
     ax.axhspan(ymin=2.5, ymax=3.5, alpha=0.5, color='b', lw=0)
@@ -199,30 +228,52 @@ def plot_timeline(time_pos, ball_pos):
     ax.axhspan(ymin=6.5, ymax=7.5, alpha=0.5, color='b', lw=0)
     ax.axhspan(ymin=7.5, ymax=8.0, alpha=0.75, color='r', lw=0)
 
-    # Ballverlauf
+    # ball position
     #plt.plot(time_norm, ball_pos)
     plt.plot(time_pos2[1:], ball_pos2[0:-1], color='k', lw=1)
 
-    # Tore
+    # goals
     goals_index = np.where(ball_pos == ball['Red Goal'])[0]
-    next_index = goals_index + 1
+    next_index = goals_index + 2
     for index in range(len(goals_index)):
-        ax.axvspan(xmin=time_pos[goals_index][index], xmax=time_pos[next_index][index], 
-                alpha=0.75, color='r', lw=0)
+        ax.axvspan(xmin=time_pos[goals_index][index], xmax=time_pos[next_index][index],
+                #alpha=0.75, 
+                color='r', lw=0)
     goals_index = np.where(ball_pos == ball['Blue Goal'])[0]
-    next_index = goals_index + 1
+    next_index = goals_index + 2
+    #print ball_pos[goals_index], ball_pos[next_index]
     for index in range(len(goals_index)):
-        ax.axvspan(xmin=time_pos[goals_index][index], xmax=time_pos[next_index][index], 
-                alpha=0.75, color='b', lw=0)
+        ax.axvspan(xmin=time_pos[goals_index][index], xmax=time_pos[next_index][index],
+                #alpha=0.75, 
+                color='b', lw=0)
 
-    # Aus
-    index = np.where(ball_pos == ball['Null'])[0]
-    next_index = index + 1
-    for index in range(len(index)):
-        ax.axvspan(xmin=time_pos[index][index], xmax=time_pos[next_index][index],
+    # out
+    out_index = np.where(ball_pos_raw == key_assign['Out'])[0]
+    next_index = out_index + 1
+    for index in range(len(out_index)):
+        ax.axvspan(xmin=time_pos[out_index][index], xmax=time_pos[next_index][index],
                 alpha=0.75, color='0.5', lw=0)
 
-    # TODO: Timeout
+    # timeout
+    timeout_index = np.where(ball_pos_raw == key_assign['Red Timeout'])[0]
+    next_index = timeout_index + 1
+    for index in range(len(timeout_index)):
+        ax.axvspan(xmin=time_pos[timeout_index][index], xmax=time_pos[next_index][index],
+                alpha=0.75, color='r', lw=0)
+    timeout_index = np.where(ball_pos_raw == key_assign['Blue Timeout'])[0]
+    next_index = timeout_index + 1
+    for index in range(len(timeout_index)):
+        ax.axvspan(xmin=time_pos[timeout_index][index], xmax=time_pos[next_index][index],
+                alpha=0.75, color='b', lw=0)
+
+    # game break
+    break_index = np.where(ball_pos_raw == key_assign['Game Break'])[0]
+    next_index = break_index + 2
+    for index in range(len(break_index)):
+        print index
+        ax.axvspan(xmin=time_pos[break_index][index], xmax=time_pos[next_index][index],
+                #alpha=0.75, 
+                color='0.5', lw=0)
 
     # x-axis: time 
     ax.set_xlabel('time in s')
@@ -360,7 +411,7 @@ def plot_posession(time_pos, ball_pos, time_diff):
 ##########################################################################3
 ##########################################################################3
 
-def plot_success(ball_pos, ball_pos_raw):
+def plot_success(ball_pos):
     # from to statistics
     # plot
     fig, ax = plt.subplots(figsize=(9, 6))#, dpi=100)
@@ -433,19 +484,23 @@ def plot_success(ball_pos, ball_pos_raw):
 ##########################################################################3
 ##########################################################################3
 
-def plot_goals(time_pos, ball_pos):
+def plot_goals(time_pos, ball_pos, clicks, games):
     # plot
     fig, ax = plt.subplots(figsize=(4, 3))#, dpi=100)
     fig.subplots_adjust(left=0.15, right=0.98, top=0.97, bottom=0.15)
 
-    goal_index = [ball_pos == ball['Red Goal']]
+    # TODO: opt. for total plot
+
+    goal_index = np.where((ball_pos == ball['Red Goal']))[0]
+    next_index = goal_index + 1
     time = np.append(0, time_pos[goal_index])
-    goals = np.arange(len(time))
+    goals = np.append(0, clicks[next_index].astype(int))
     plt.plot(time, goals, 'r', marker='o')
 
-    goal_index = [ball_pos == ball['Blue Goal']]
+    goal_index = np.where(ball_pos == ball['Blue Goal'])[0]
+    next_index = goal_index + 1
     time = np.append(0, time_pos[goal_index])
-    goals = np.arange(len(time))
+    goals = np.append(0, clicks[next_index].astype(int))
     plt.plot(time, goals, 'b', marker='o')
 
     ax.set_xlabel('time in s')
@@ -456,7 +511,7 @@ def plot_goals(time_pos, ball_pos):
     ax.grid(which = 'minor')
 
     # save
-    save_name = 'out/' + file_name[4:-4] + '_goals' + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_goals_' + games + '.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
@@ -464,20 +519,35 @@ def plot_goals(time_pos, ball_pos):
 ##########################################################################3
 if __name__ == "__main__":
     # data
-    arguments = docopt(__doc__, version='analyze trigger')
-    file_name = arguments['--input']
+    arguments = docopt(__doc__, version='analyse clicker')
+    file_name = arguments['--logfile']
 
     # proc data
     time_pos, ball_pos, ball_pos_raw, time_diff = proc_data(file_name)
 
-    # plot timeline
-    plot_timeline(time_pos, ball_pos)
+    # balls timeline
+    plot_timeline(time_pos, ball_pos, ball_pos_raw)
+
+    # goals timeline
+    # total
+    plot_goals(time_pos, ball_pos, ball_pos_raw, 'total')
+    # per game
+    games_start_index = np.append(0, np.where(ball_pos_raw == key_assign['Game Break'])[0] + 2)
+    print games_start_index
+    for index, value in enumerate(games_start_index):
+        if index == len(games_start_index) - 1: # end
+            time_pos_game = time_pos[value:]
+            ball_pos_game = ball_pos[value:]
+            ball_pos_raw_game = ball_pos_raw[value:]
+        else:
+            time_pos_game = time_pos[value:games_start_index[index+1]]
+            ball_pos_game = ball_pos[value:games_start_index[index+1]]
+            ball_pos_raw_game = ball_pos_raw[value:games_start_index[index+1]]
+        plot_goals(time_pos_game, ball_pos_game, ball_pos_raw_game, 'game ' + str(index + 1))
 
     # ball posession
     plot_posession(time_pos, ball_pos, time_diff)
 
     # shoot/defense statistics
-    plot_success(ball_pos, ball_pos_raw)
+    plot_success(ball_pos)
 
-    # goals: rods and timeline
-    plot_goals(time_pos, ball_pos)
