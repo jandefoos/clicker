@@ -525,15 +525,16 @@ if __name__ == "__main__":
     # proc data
     time_pos, ball_pos, ball_pos_raw, time_diff = proc_data(file_name)
 
+    # total
+
     # balls timeline
     plot_timeline(time_pos, ball_pos, ball_pos_raw)
-
     # goals timeline
-    # total
     plot_goals(time_pos, ball_pos, ball_pos_raw, 'total')
+
     # per game
     games_start_index = np.append(0, np.where(ball_pos_raw == key_assign['Game Break'])[0] + 2)
-    print games_start_index
+    # loop over games
     for index, value in enumerate(games_start_index):
         if index == len(games_start_index) - 1: # end
             time_pos_game = time_pos[value:]
@@ -543,6 +544,7 @@ if __name__ == "__main__":
             time_pos_game = time_pos[value:games_start_index[index+1]]
             ball_pos_game = ball_pos[value:games_start_index[index+1]]
             ball_pos_raw_game = ball_pos_raw[value:games_start_index[index+1]]
+        # goals timeline
         plot_goals(time_pos_game, ball_pos_game, ball_pos_raw_game, 'game ' + str(index + 1))
 
     # ball posession
