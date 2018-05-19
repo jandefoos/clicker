@@ -117,6 +117,7 @@ def posession(time_pos, ball_pos, time_diff, position):
 
 def from_to(ball_pos, rod_start, rod_end):
     index = np.where(ball_pos==ball[rod_start])[0]
+    #print index + 1:w
     successes = len(np.where(ball_pos[index+1] == ball[rod_end])[0])
     return successes
 
@@ -489,17 +490,15 @@ def plot_goals(time_pos, ball_pos, clicks, game):
     fig, ax = plt.subplots(figsize=(4, 3))#, dpi=100)
     fig.subplots_adjust(left=0.15, right=0.98, top=0.97, bottom=0.15)
 
-    # TODO: opt. for total plot
-
     goal_index = np.where((ball_pos == ball['Red Goal']))[0]
     next_index = goal_index + 1
-    time = np.append(0, time_pos[goal_index])
+    time = np.append(time_pos[0], time_pos[goal_index])
     goals = np.append(0, clicks[next_index].astype(int))
     plt.plot(time, goals, 'r', marker='o')
 
     goal_index = np.where(ball_pos == ball['Blue Goal'])[0]
     next_index = goal_index + 1
-    time = np.append(0, time_pos[goal_index])
+    time = np.append(time_pos[0], time_pos[goal_index])
     goals = np.append(0, clicks[next_index].astype(int))
     plt.plot(time, goals, 'b', marker='o')
 
@@ -538,6 +537,7 @@ if __name__ == "__main__":
 
     # per game
     games_start_index = np.append(0, np.where(ball_pos_raw == key_assign['Game Break'])[0] + 2)
+    #print games_start_index 
     # loop over games
     for index, value in enumerate(games_start_index):
         if index == len(games_start_index) - 1: # end
