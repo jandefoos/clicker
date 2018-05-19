@@ -79,7 +79,6 @@ def proc_data(file_name):
 
 
 
-
 ##########################################################################3
 
 def posession(time_pos, ball_pos, time_diff, position):
@@ -204,17 +203,26 @@ def plot_timeline(time_pos, ball_pos):
     #plt.plot(time_norm, ball_pos)
     plt.plot(time_pos2[1:], ball_pos2[0:-1], color='k', lw=1)
 
-    # TODO:
     # Tore
-    goals = [ball_pos == 'Red Goal']
-    next_position = [ball_pos == 'Red Goal'] + 1
-    ax.axvspan(xmin=time_pos[goals], xmax=time_pos[next_position], alpha=0.75, color='r', lw=0)
+    goals_index = np.where(ball_pos == ball['Red Goal'])[0]
+    next_index = goals_index + 1
+    for index in range(len(goals_index)):
+        ax.axvspan(xmin=time_pos[goals_index][index], xmax=time_pos[next_index][index], 
+                alpha=0.75, color='r', lw=0)
+    goals_index = np.where(ball_pos == ball['Blue Goal'])[0]
+    next_index = goals_index + 1
+    for index in range(len(goals_index)):
+        ax.axvspan(xmin=time_pos[goals_index][index], xmax=time_pos[next_index][index], 
+                alpha=0.75, color='b', lw=0)
 
-    #ax.text(0.05, 0.9, timeline_text,
-    #        transform=ax.transAxes, verticalalignment='top', horizontalalignment='left')
     # Aus
+    index = np.where(ball_pos == ball['Null'])[0]
+    next_index = index + 1
+    for index in range(len(index)):
+        ax.axvspan(xmin=time_pos[index][index], xmax=time_pos[next_index][index],
+                alpha=0.75, color='0.5', lw=0)
 
-    # Timeout
+    # TODO: Timeout
 
     # x-axis: time 
     ax.set_xlabel('time in s')
@@ -466,10 +474,10 @@ if __name__ == "__main__":
     plot_timeline(time_pos, ball_pos)
 
     # ball posession
-    #plot_posession(time_pos, ball_pos, time_diff)
+    plot_posession(time_pos, ball_pos, time_diff)
 
     # shoot/defense statistics
-    #plot_success(ball_pos, ball_pos_raw)
+    plot_success(ball_pos, ball_pos_raw)
 
     # goals: rods and timeline
     plot_goals(time_pos, ball_pos)
