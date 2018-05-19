@@ -168,17 +168,16 @@ if not record_dpy.has_extension("RECORD"):
 r = record_dpy.record_get_version(0, 0)
 
 #print "RECORD extension version %d.%d" % (r.major_version, r.minor_version)
-print "-----------------------"
-print "Tio Tor  #   #  Tor Tio"
-print " e   r  <#> <#>  u   i "
-print "-----------------------"
-print "Abw 3er 5er 5er 3er Abw"
-print " d   f   g   h   j   k "
-print "-----------------------"
-print "Aus Set ext "
-print "spc rtr C+c "
-print "-----------------------"
-print ""
+print "----------------------------------- "
+print "              Tio Tio               "
+print "               t   y                "
+print "----------------------------------- "
+print " Tor  Abw 3er 5er 5er 3er Abw  Tor  "
+print "s+<#>  d   f   g   h   j   k  l+<#> "
+print "----------------------------------- "
+print "Aus    Set     ext "
+print "spc  rtr+<#>   C+c "
+print "----------------------------------- "
 
 
 
