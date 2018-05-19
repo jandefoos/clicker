@@ -9,4 +9,8 @@ Analyse the clicks by
 
 Try the analysis with the example file `log/180519_do-master_vorrunde3_kunath-retzlaff_heinrich-sorger.log`
 
+
+Info: Left Team plays downwards and is blue 
+Info: Right Team plays upwards and is red 
+
 Info: Developed and used up to know with Ubuntu 16.4. and Python 2.7

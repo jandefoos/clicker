@@ -51,14 +51,14 @@ ball = {
 
 team = ('Defense', 'Midfield', 'Forward')
 team_color = ('g', 'b', 'r')
-teams = ('Red', 'Blue')
-teams_color = ('r', 'b')
+teams = ('Blue', 'Red')
+teams_color = ('b', 'r')
 
 team_red = np.array(['Red Defense', 'Red Midfield', 'Red Forward'])
 team_blu = np.array(['Blue Defense', 'Blue Midfield', 'Blue Forward'])
-rod_def = ('Red Defense', 'Blue Defense')
-rod_5er = ('Red Midfield', 'Blue Midfield')
-rod_3er = ('Red Forward', 'Blue Forward')
+rod_def = ('Blue Defense',  'Red Defense'  )
+rod_5er = ('Blue Midfield', 'Red Midfield' )
+rod_3er = ('Blue Forward',  'Red Forward'  )
 
 
 ##########################################################################3
@@ -199,7 +199,8 @@ def plot_bar_selection(time_pos, ball_pos, time_diff, rod_cfg, parameter, xpos, 
 ##########################################################################3
 ##########################################################################3
 
-def plot_timeline(time_pos, ball_pos, ball_pos_raw):
+def plot_timeline(time_pos, ball_pos, ball_pos_raw, game):
+    time_pos = time_pos - time_pos[0]
     # for plot v2
     ball_pos2 = np.zeros(2*len(time_pos))
     time_pos2 = np.zeros(2*len(time_pos))
@@ -263,13 +264,14 @@ def plot_timeline(time_pos, ball_pos, ball_pos_raw):
         ax.axvspan(xmin=time_pos[timeout_index][index], xmax=time_pos[next_index][index],
                 alpha=0.75, color='b', lw=0)
 
-    # game break
-    break_index = np.where(ball_pos_raw == key_assign['Game Break'])[0]
-    next_index = break_index + 2
-    for index in range(len(break_index)):
-        ax.axvspan(xmin=time_pos[break_index][index], xmax=time_pos[next_index][index],
-                #alpha=0.75, 
-                color='0.5', lw=0)
+    if game == 'total':
+        # game break
+        break_index = np.where(ball_pos_raw == key_assign['Game Break'])[0]
+        next_index = break_index + 2
+        for index in range(len(break_index)):
+            ax.axvspan(xmin=time_pos[break_index][index], xmax=time_pos[next_index][index],
+                    #alpha=0.75, 
+                    color='0.5', lw=0)
 
     # x-axis: time 
     ax.set_xlabel('time in s')
@@ -294,7 +296,7 @@ def plot_timeline(time_pos, ball_pos, ball_pos_raw):
     ax.set_yticklabels(y_tick_labels)
 
     # save
-    save_name = 'out/' + file_name[4:-4] + '_ball_positions' + '.pdf'
+    save_name = 'out/' + file_name[4:-4] + '_ball_positions_' + game +'.pdf'
     fig.savefig(save_name)
     print "evince", save_name, "&"
 
@@ -340,11 +342,11 @@ def plot_posession(time_pos, ball_pos, time_diff, game):
         fig.subplots_adjust(left=0.3, right=0.98, top=0.75, bottom=0.1)
 
         plot_bar_selection(time_pos, ball_pos, time_diff,
-                team_red, value, xpos=1.0, width=0.65,
-                legend=True,  option='team', ax=ax)
+                team_blu, value, xpos=1.0, width=0.65,
+                legend=True, option='team', ax=ax)
         plot_bar_selection(time_pos, ball_pos, time_diff,
-                team_blu, value, xpos=2.0, width=0.65,
-                legend=False, option='team', ax=ax)
+                team_red, value, xpos=2.0, width=0.65,
+                legend=False,  option='team', ax=ax)
 
         # x-axis: time 
         ax.set_ylabel(value)
@@ -353,8 +355,8 @@ def plot_posession(time_pos, ball_pos, time_diff, game):
 
         # change to names
         x_tick_labels = ax.get_xticks().tolist()
-        x_tick_labels[1] = 'Red'
-        x_tick_labels[2] = 'Blue'
+        x_tick_labels[1] = 'Blue'
+        x_tick_labels[2] = 'Red'
         ax.set_xticklabels(x_tick_labels)
         if value == 'counts':
             # grid lines
@@ -527,7 +529,7 @@ if __name__ == "__main__":
     # total
 
     # balls timeline
-    plot_timeline(time_pos, ball_pos, ball_pos_raw)
+    plot_timeline(time_pos, ball_pos, ball_pos_raw, 'total')
     # goals timeline
     plot_goals(time_pos, ball_pos, ball_pos_raw, 'total')
     # ball posession
@@ -551,11 +553,11 @@ if __name__ == "__main__":
             ball_pos_raw_game = ball_pos_raw[value:games_start_index[index+1]]
             time_diff_game = time_diff[value:games_start_index[index+1]]
         name = 'game ' + str(index + 1)
+        # balls timeline
+        plot_timeline(time_pos_game, ball_pos_game, ball_pos_raw_game, name)
         # goals timeline
         plot_goals(time_pos_game, ball_pos_game, ball_pos_raw_game, name)
         # ball posession
         plot_posession(time_pos_game, ball_pos_game, time_diff_game, name)
         # shoot/defense statistics
         plot_success(time_pos_game, ball_pos_game, time_diff_game, name)
-
-
