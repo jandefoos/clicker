@@ -97,7 +97,7 @@ def proc_data(file_name):
     index = np.where(ball_pos == 0.0)[0]
     ball_pos[index] = 4.5 # ball_pos[index-1]
 
-    #print time_pos, ball_pos, clicks, time_diff
+    print time_pos, ball_pos, clicks, time_diff
     #print len(time_pos), len(ball_pos), len(clicks), len(time_diff)
     #print clicks[ball_pos == 0.0] # should be only numbers from goals and sets and timeouts
     return time_pos, ball_pos, clicks, time_diff
@@ -184,10 +184,25 @@ def plot_bar_selection(time_pos, ball_pos, time_diff, rod_cfg, parameter, xpos, 
     for index, value in enumerate(rod_cfg):
         rod = posession(time_pos, ball_pos, time_diff, value)
         if option == 'team':
-            plt.bar(xpos, rod[parameter], width, bottom=bottom,
+            ax.bar(xpos, rod[parameter], width, bottom=bottom,
                     label=team[index], color=team_color[index])
         elif option == 'rod':
-            plt.bar(xpos, rod[parameter], width, bottom=bottom,
+        # next to each other
+        #    if teams[index] == 'Red':
+        #        ax.bar(xpos, rod[parameter], width/2, 
+        #                label=teams[index], color=teams_color[index])
+        #    if teams[index] == 'Blue':
+        #        ax.bar(xpos+width/2, rod[parameter], width/2, 
+        #                label=teams[index], color=teams_color[index])
+        # positive-negative method
+        #    if teams[index] == 'Red':
+        #        ax.bar(xpos, -rod[parameter], width, 
+        #                label=teams[index], color=teams_color[index])
+        #    if teams[index] == 'Blue':
+        #        ax.bar(xpos, rod[parameter], width, 
+        #                label=teams[index], color=teams_color[index])
+        # pile-up method by increasing starting point in y
+            ax.bar(xpos, rod[parameter], width, bottom=bottom,
                     label=teams[index], color=teams_color[index])
         bottom += rod[parameter]
     if legend == True:
@@ -492,13 +507,13 @@ def plot_goals(time_pos, ball_pos, clicks, game):
     fig, ax = plt.subplots(figsize=(4, 3))#, dpi=100)
     fig.subplots_adjust(left=0.15, right=0.98, top=0.97, bottom=0.15)
 
-    goal_index = np.where((ball_pos == ball['Red Goal']))[0]
+    goal_index = np.where((ball_pos == ball['Red Goal']) ^ (clicks == key_assign['Game Break']))[0]
     next_index = goal_index + 1
     time = np.append(time_pos[0], time_pos[goal_index])
     goals = np.append(0, clicks[next_index].astype(int))
     plt.plot(time, goals, 'r', marker='o')
 
-    goal_index = np.where(ball_pos == ball['Blue Goal'])[0]
+    goal_index = np.where((ball_pos == ball['Blue Goal']) ^ (clicks == key_assign['Game Break']))[0]
     next_index = goal_index + 1
     time = np.append(time_pos[0], time_pos[goal_index])
     goals = np.append(0, clicks[next_index].astype(int))

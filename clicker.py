@@ -169,14 +169,17 @@ r = record_dpy.record_get_version(0, 0)
 
 #print "RECORD extension version %d.%d" % (r.major_version, r.minor_version)
 print "----------------------------------- "
-print "              Tio Tio               "
+print "              TIMEOUT               "
 print "               t   y                "
 print "----------------------------------- "
-print " Tor  Abw 3er 5er 5er 3er Abw  Tor  "
+print "               O   X                "
+print "       O   X   O   X   O   X        "
+print "----------------------------------- "
+print "GOAL  DEF FOR MID MID FOR DEF  GOAL "
 print "s+<#>  d   f   g   h   j   k  l+<#> "
 print "----------------------------------- "
-print "Aus    Set     ext "
-print "spc  rtr+<#>   C+c "
+print "OUT  SET-END   EXIT                 "
+print "spc  rtr + 0   C+c                  "
 print "----------------------------------- "
 
 
