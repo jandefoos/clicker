@@ -1,16 +1,32 @@
-# clicker
+# clicker version1
 
-Start the clicker and click according to the key assignment:
-`python clicker.py --logfile=log/<name>`
-(Start with Midfield posession, number after goal, return and number after game, Control+c to stop/close)
+Click your posessions with any text App (Notes, Whatsapp, ...). The standard assignment is:
+
+'''
+Out:             'space'
+Blue Goal:       '#'
+Red Defense:     '6'
+Blue Forward:    '5'
+Red Midfield:    '4'
+Blue Midfield:   '3'
+Red Forward:     '2'
+Blue Defense:    '1'
+Red Goal:        '@'
+Game Break:      'Return'
+Red Timeout:     '('
+Blue Timeout:    ')'  
+'''
 
 Analyse the clicks by 
-`python analyse.py --logfile=log/<name>`
+`python3 analyse.py`
 
-Try the analysis with the example file `log/180519_do-master_vorrunde3_kunath-retzlaff_heinrich-sorger.log`
+For Example: Enter the Game name 
+`200229_meyer-wohlgemuth_kixx-single_game5`
 
+and enter the possession-string:
+`35#42@35664242656542@3565#4335#4135644641#442412@333)344@3(356135#42@35#4215#`
 
 Info: Left Team plays downwards and is blue 
 Info: Right Team plays upwards and is red 
 
-Info: Developed and used up to now with Ubuntu 16.4. and Python 2.7, dependencies numpy, matplotlib, docopt
+Info: Adjusted version without time and easy entry, used with MacOS and Python 3, dependencies numpy, matplotlib

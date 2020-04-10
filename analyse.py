@@ -14,10 +14,11 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MultipleLocator
-from docopt import docopt
+#from docopt import docopt
 
 ########################################################
 
+# adjust your key assignment here, if different
 key_assign = {
     'Out' :             'space',
     'Blue Goal' :       '#',
@@ -32,6 +33,7 @@ key_assign = {
     'Red Timeout' :     '(',
     'Blue Timeout' :    ')',
     }
+###
 
 ball = {
     'Out' :            0,
@@ -64,6 +66,7 @@ rod_3er = ('Blue Forward',  'Red Forward'  )
 ##########################################################################3
 ##########################################################################3
 
+game_name = input("Enter game name [Date, Teams, Game]:\n")
 game_raw = input("Enter game data:\n")
 
 data = np.array(list(game_raw))
