@@ -46,8 +46,8 @@ ball = {
     'Blue Defense' :    7,
     'Red Goal' :        8,
     'Game Break' :      9,
-    'Red Timeout' :     10,
-    'Blue Timeout' :    11
+    'Red Timeout' :     4.5,
+    'Blue Timeout' :    4.5
     }
 
 
@@ -104,7 +104,7 @@ def proc_data(data):
     index = np.where(ball_pos == 0.0)[0]
     ball_pos[index] = 4.5 # ball_pos[index-1]
 
-    print(ball_pos, clicks)
+    #print(ball_pos, clicks)
     #print(len(time_pos), len(ball_pos), len(clicks), len(time_diff))
     #print(clicks[ball_pos == 0.0]) # should be only numbers from goals and sets and timeouts
     return ball_pos, clicks
@@ -121,7 +121,7 @@ def posession(ball_pos, position):
             'counts': len(rod_posessions), # 
             'fraction': len(rod_posessions)/len(ball_pos)} # 
 
-print(posession(ball_pos, 'Blue Forward'))
+#print(posession(ball_pos, 'Blue Forward'))
 #print(posession(ball_pos, 3))
 
 
@@ -136,7 +136,7 @@ def from_to(ball_pos, rod_start, rod_end):
     return successes
 	
 	
-print(from_to(ball_pos, 'Blue Midfield', 'Blue Forward'))
+#print(from_to(ball_pos, 'Blue Midfield', 'Blue Forward'))
 
 ##########################################################################3
 
@@ -182,12 +182,12 @@ def from_to_statistics(ball_pos, from_position):
             pass2er, pass5er, pass3er, goals)
 			
 			
-print(from_to_statistics(ball_pos, 'Blue Midfield'))
+#print(from_to_statistics(ball_pos, 'Blue Midfield'))
 
 ##########################################################################3
 
 
-
+# timeline
 def plot_timeline(ball_pos, game):
     time_pos = np.arange(len(ball_pos))
 
@@ -244,27 +244,27 @@ def plot_timeline(ball_pos, game):
     ax.set_yticklabels(y_tick_labels)
 
     # save
-    save_name = 'ball_positions_' + game +'.png'
+    save_name = 'out/' + game + '_ball_positions' + '.png'
     fig.savefig(save_name)
 
-plot_timeline(ball_pos, 'game')
+plot_timeline(ball_pos, game_name)
 
 
-
+# goals
 def plot_goals(ball_pos, game):
     # plot
     fig, ax = plt.subplots(figsize=(4, 3))#, dpi=100)
     fig.subplots_adjust(left=0.15, right=0.98, top=0.97, bottom=0.15)
 
     goal_index = np.where(ball_pos == ball['Red Goal'])[0]
-    print(goal_index)
+    #print(goal_index)
     actions = np.arange(len(ball_pos))
     time = np.append(actions[0], actions[goal_index])
     goals = np.arange(len(actions[goal_index])+1)
     plt.plot(time, goals, 'r', marker='o')
 
     goal_index = np.where(ball_pos == ball['Blue Goal'])[0]
-    print(goal_index)
+    #print(goal_index)
     actions = np.arange(len(ball_pos))
     time = np.append(actions[0], actions[goal_index])
     goals = np.arange(len(actions[goal_index])+1)
@@ -278,18 +278,13 @@ def plot_goals(ball_pos, game):
     ax.grid(which = 'minor')
 
     # save
-    save_name = 'goals_' + game + '.png'
+    save_name = 'out/' + game + '_goals' + '.png'
     fig.savefig(save_name)
 
-plot_goals(ball_pos, 'game')
+plot_goals(ball_pos, game_name)
 
 
-
-
-
-
-
-# stacked histo
+# stackd histo
 def plot_bar(values, labels, colors, xpos, width, legend, ax):
     bottom = 0
     for index, value in enumerate(values):
@@ -301,6 +296,7 @@ def plot_bar(values, labels, colors, xpos, width, legend, ax):
                 ax.text(xpos, bottom - 0.5, labels[index],
                         horizontalalignment='center', verticalalignment='center')
 
+# event statistic
 def plot_success(ball_pos, game):
     # from to statistics
     # plot
@@ -371,11 +367,15 @@ def plot_success(ball_pos, game):
     # TODO: opt. team colors
 
     # save
-    save_name = 'success_' + game + '.png'
+    save_name = 'out/' + game + '_success' + '.png'
     fig.savefig(save_name)
 	
 
-plot_success(ball_pos, 'game')
+plot_success(ball_pos, game_name)
+
+
+####################
+# std printout 
 
 print("\n")
 red_fracs = from_to_statistics(ball_pos, 'Red Forward')

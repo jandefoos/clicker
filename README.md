@@ -2,7 +2,7 @@
 
 Click your posessions with any text App (Notes, Whatsapp, ...). The standard assignment is:
 
-'''
+```
 Out:             'space'
 Blue Goal:       '#'
 Red Defense:     '6'
@@ -15,18 +15,20 @@ Red Goal:        '@'
 Game Break:      'Return'
 Red Timeout:     '('
 Blue Timeout:    ')'  
-'''
+```
 
 Analyse the clicks by 
 `python3 analyse.py`
 
 For Example: Enter the Game name 
-`200229_meyer-wohlgemuth_kixx-single_game5`
+`200229_meyer-wohlgemuth_kixx-single-final_game5`
 
 and enter the possession-string:
 `35#42@35664242656542@3565#4335#4135644641#442412@333)344@3(356135#42@35#4215#`
 
-Info: Left Team plays downwards and is blue 
-Info: Right Team plays upwards and is red 
+See https://www.youtube.com/watch?v=liC8PmLR7So#t=7h52m00s
+
+Info: Left Team plays downwards and is red 
+Info: Right Team plays upwards and is blue 
 
 Info: Adjusted version without time and easy entry, used with MacOS and Python 3, dependencies numpy, matplotlib
