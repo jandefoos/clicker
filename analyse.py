@@ -20,18 +20,18 @@ from matplotlib.ticker import MultipleLocator
 
 # adjust your key assignment here, if different
 key_assign = {
-    'Out' :             'space',
-    'Blue Goal' :       '#',
+    'Out' :             'e',
+    'Blue Goal' :       't',
     'Red Defense' :     '6',
     'Blue Forward' :    '5',
     'Red Midfield' :    '4',
     'Blue Midfield' :   '3',
     'Red Forward' :     '2',
     'Blue Defense' :    '1',
-    'Red Goal' :        '@',
-    'Game Break' :      'Return',
-    'Red Timeout' :     '(',
-    'Blue Timeout' :    ')',
+    'Red Goal' :        'q',
+    'Game Break' :      '0',
+    'Red Timeout' :     'w',
+    'Blue Timeout' :    'r',
     }
 ###
 
@@ -399,7 +399,7 @@ print("           Red Forward     Blue Forward", "\n"
       "Turnover:", red_turnover_rel, "% (", red_turnover,")   ",blue_turnover_rel, "% (", blue_turnover,")", "\n")
 
 
-print("\n")
+#print("\n")
 red_fracs = from_to_statistics(ball_pos, 'Red Midfield')
 #print(red_fracs)
 red_turnover = np.sum(red_fracs[:4])
@@ -420,7 +420,7 @@ print("           Red Midfield    Blue Midfield", "\n"
       "Offense: ", red_offense_rel,  "% (", red_offense, ")   ", blue_offense_rel,  "% (", blue_offense,")",  "\n",
       "Turnover:", red_turnover_rel, "% (", red_turnover,")   ", blue_turnover_rel, "% (", blue_turnover,")", "\n")
 
-print("\n")
+#print("\n")
 red_fracs = from_to_statistics(ball_pos, 'Red Defense')
 #print(red_fracs)
 red_turnover = np.sum(red_fracs[:4])
