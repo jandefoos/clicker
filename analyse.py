@@ -376,67 +376,208 @@ plot_success(ball_pos, game_name)
 
 ####################
 # std printout 
-
 print("\n")
-red_fracs = from_to_statistics(ball_pos, 'Red Forward')
-#print(red_fracs)
-red_turnover = np.sum(red_fracs[:4])
-red_offense  = np.sum(red_fracs[6:])
-red_goals    = red_fracs[-1]
-red_turnover_rel = round(red_turnover/np.sum(red_fracs)*100., 1)
-red_offense_rel  = round(red_offense/np.sum(red_fracs)*100. , 1)
 
-blue_fracs = from_to_statistics(ball_pos, 'Blue Forward')
-#print(blue_fracs)
-blue_turnover = np.sum(blue_fracs[:4])
-blue_offense  = np.sum(blue_fracs[6:])
-blue_goals    = blue_fracs[-1]
-blue_turnover_rel = round(blue_turnover/np.sum(blue_fracs)*100., 1)
-blue_offense_rel  = round(blue_offense/np.sum(blue_fracs)*100. , 1)
-print("           Red Forward     Blue Forward", "\n" 
-      " Goals:   ", red_goals, "             ",              blue_goals,                                 "\n", 
-      "Offense: ", red_offense_rel,  "% (", red_offense, ")   ", blue_offense_rel,  "% (", blue_offense,")",  "\n",
-      "Turnover:", red_turnover_rel, "% (", red_turnover,")   ",blue_turnover_rel, "% (", blue_turnover,")", "\n")
+red_turnover_total = 0
+red_retry_total = 0
+red_offense_total = 0
+red_goals_total = 0
 
+red_turnover_total_rel = 0.
+red_retry_total_rel = 0.
+red_offense_total_rel = 0.
 
-#print("\n")
-red_fracs = from_to_statistics(ball_pos, 'Red Midfield')
-#print(red_fracs)
-red_turnover = np.sum(red_fracs[:4])
-red_offense  = np.sum(red_fracs[5:])
-red_goals    = red_fracs[-1]
-red_turnover_rel = round(red_turnover/np.sum(red_fracs)*100., 1)
-red_offense_rel  = round(red_offense/np.sum(red_fracs)*100. , 1)
+blue_turnover_total = 0
+blue_retry_total = 0
+blue_offense_total = 0
+blue_goals_total = 0
 
-blue_fracs = from_to_statistics(ball_pos, 'Blue Midfield')
-#print(blue_fracs)
-blue_turnover = np.sum(blue_fracs[:4])
-blue_offense  = np.sum(blue_fracs[5:])
-blue_goals    = blue_fracs[-1]
-blue_turnover_rel = round(blue_turnover/np.sum(blue_fracs)*100., 1)
-blue_offense_rel  = round(blue_offense/np.sum(blue_fracs)*100. , 1)
-print("           Red Midfield    Blue Midfield", "\n" 
-      " Goals:   ", red_goals, "             ",              blue_goals,                                 "\n", 
-      "Offense: ", red_offense_rel,  "% (", red_offense, ")   ", blue_offense_rel,  "% (", blue_offense,")",  "\n",
-      "Turnover:", red_turnover_rel, "% (", red_turnover,")   ", blue_turnover_rel, "% (", blue_turnover,")", "\n")
+blue_turnover_total_rel = 0.
+blue_retry_total_rel = 0.
+blue_offense_total_rel = 0.
 
-#print("\n")
+####################################################################
+# from_to_statistics
+# output: own_goals, turnover_3er, turnover_5er, turnover_2er, pass2er, pass5er, pass3er, goals
+# list from 0 till 7
+
 red_fracs = from_to_statistics(ball_pos, 'Red Defense')
 #print(red_fracs)
 red_turnover = np.sum(red_fracs[:4])
+red_retry    = np.sum(red_fracs[4])
 red_offense  = np.sum(red_fracs[5:])
-red_goals    = red_fracs[-1]
+red_goals    = red_fracs[7]
 red_turnover_rel = round(red_turnover/np.sum(red_fracs)*100., 1)
+red_retry_rel    = round(red_retry/np.sum(red_fracs)*100., 1)
 red_offense_rel  = round(red_offense/np.sum(red_fracs)*100. , 1)
 
 blue_fracs = from_to_statistics(ball_pos, 'Blue Defense')
 #print(blue_fracs)
 blue_turnover = np.sum(blue_fracs[:4])
+blue_retry    = np.sum(blue_fracs[4])
 blue_offense  = np.sum(blue_fracs[5:])
-blue_goals    = blue_fracs[-1]
+blue_goals    = blue_fracs[7]
 blue_turnover_rel = round(blue_turnover/np.sum(blue_fracs)*100., 1)
+blue_retry_rel    = round(blue_retry/np.sum(blue_fracs)*100., 1)
 blue_offense_rel  = round(blue_offense/np.sum(blue_fracs)*100. , 1)
+
 print("           Red Defense     Blue Defense", "\n" 
-      " Goals:   ", red_goals, "             ",              blue_goals,                                 "\n", 
+      " Goals:   ", red_goals, " (-", red_fracs[0], ")      ", blue_goals, " (-", blue_fracs[0], ")", "\n", 
       "Offense: ", red_offense_rel,  "% (", red_offense, ")   ", blue_offense_rel,  "% (", blue_offense,")",  "\n",
+      "Retry:   ", red_retry_rel,    "% (", red_retry,   ")   ", blue_retry_rel,    "% (", blue_retry,    ")", "\n",
       "Turnover:", red_turnover_rel, "% (", red_turnover,")   ",blue_turnover_rel, "% (", blue_turnover,")", "\n")
+
+red_turnover_total = red_turnover_total + red_turnover 
+red_retry_total    = red_retry_total    + red_retry
+red_offense_total  = red_offense_total  + red_offense
+red_goals_total    = red_goals_total    + red_goals     + blue_fracs[0]
+
+red_turnover_total_rel = red_turnover_total_rel + red_turnover_rel
+red_retry_total_rel    = red_retry_total_rel    + red_retry_rel
+red_offense_total_rel  = red_offense_total_rel  + red_offense_rel
+
+blue_turnover_total = blue_turnover_total + blue_turnover
+blue_retry_total    = blue_retry_total    + blue_retry
+blue_offense_total  = blue_offense_total  + blue_offense
+blue_goals_total    = blue_goals_total    + blue_goals    + red_fracs[0]
+
+blue_turnover_total_rel = blue_turnover_total_rel + blue_turnover_rel
+blue_retry_total_rel    = blue_retry_total_rel    + blue_retry_rel
+blue_offense_total_rel  = blue_offense_total_rel  + blue_offense_rel
+
+
+####################################################################
+# from_to_statistics
+# output: own_goals, turnover_3er, turnover_5er, turnover_2er, pass2er, pass5er, pass3er, goals
+# list from 0 till 7
+
+red_fracs = from_to_statistics(ball_pos, 'Red Midfield')
+#print(red_fracs)
+red_turnover = np.sum(red_fracs[:4])
+red_retry    = np.sum(red_fracs[4:6])
+red_offense  = np.sum(red_fracs[6:])
+red_goals    = red_fracs[7]
+red_turnover_rel = round(red_turnover/np.sum(red_fracs)*100., 1)
+red_retry_rel    = round(red_retry/np.sum(red_fracs)*100., 1)
+red_offense_rel  = round(red_offense/np.sum(red_fracs)*100. , 1)
+
+blue_fracs = from_to_statistics(ball_pos, 'Blue Midfield')
+#print(blue_fracs)
+blue_turnover = np.sum(blue_fracs[:4])
+blue_retry    = np.sum(blue_fracs[4:6])
+blue_offense  = np.sum(blue_fracs[6:])
+blue_goals    = blue_fracs[7]
+blue_turnover_rel = round(blue_turnover/np.sum(blue_fracs)*100., 1)
+blue_retry_rel    = round(blue_retry/np.sum(blue_fracs)*100., 1)
+blue_offense_rel  = round(blue_offense/np.sum(blue_fracs)*100. , 1)
+
+print("           Red Midfield    Blue Midfield", "\n" 
+      " Goals:   ", red_goals, " (-", red_fracs[0], ")      ", blue_goals, " (-", blue_fracs[0], ")", "\n", 
+      "Offense: ", red_offense_rel,  "% (", red_offense, ")   ", blue_offense_rel,  "% (", blue_offense,")",  "\n",
+      "Retry:   ", red_retry_rel,    "% (", red_retry,   ")   ", blue_retry_rel,    "% (", blue_retry,    ")", "\n",
+      "Turnover:", red_turnover_rel, "% (", red_turnover,")   ", blue_turnover_rel, "% (", blue_turnover,")", "\n")
+
+red_turnover_total = red_turnover_total + red_turnover 
+red_retry_total    = red_retry_total    + red_retry
+red_offense_total  = red_offense_total  + red_offense
+red_goals_total    = red_goals_total    + red_goals     + blue_fracs[0]
+
+red_turnover_total_rel = red_turnover_total_rel + red_turnover_rel
+red_retry_total_rel    = red_retry_total_rel    + red_retry_rel
+red_offense_total_rel  = red_offense_total_rel  + red_offense_rel
+
+blue_turnover_total = blue_turnover_total + blue_turnover
+blue_retry_total    = blue_retry_total    + blue_retry
+blue_offense_total  = blue_offense_total  + blue_offense
+blue_goals_total    = blue_goals_total    + blue_goals    + red_fracs[0]
+
+blue_turnover_total_rel = blue_turnover_total_rel + blue_turnover_rel
+blue_retry_total_rel    = blue_retry_total_rel    + blue_retry_rel
+blue_offense_total_rel  = blue_offense_total_rel  + blue_offense_rel
+
+####################################################################
+# from_to_statistics
+# output: own_goals, turnover_3er, turnover_5er, turnover_2er, pass2er, pass5er, pass3er, goals
+# list from 0 till 7
+
+red_fracs = from_to_statistics(ball_pos, 'Red Forward')
+#print(red_fracs)
+red_turnover = np.sum(red_fracs[:4])
+red_retry    = np.sum(red_fracs[4:7])
+red_offense  = np.sum(red_fracs[7])
+red_goals    = red_fracs[7]
+red_turnover_rel = round(red_turnover/np.sum(red_fracs)*100., 1)
+red_retry_rel    = round(red_retry/np.sum(red_fracs)*100., 1)
+red_offense_rel  = round(red_offense/np.sum(red_fracs)*100. , 1)
+
+blue_fracs = from_to_statistics(ball_pos, 'Blue Forward')
+#print(blue_fracs)
+blue_turnover = np.sum(blue_fracs[:4])
+blue_retry    = np.sum(blue_fracs[4:7])
+blue_offense  = np.sum(blue_fracs[7])
+blue_goals    = blue_fracs[7]
+blue_turnover_rel = round(blue_turnover/np.sum(blue_fracs)*100., 1)
+blue_retry_rel    = round(blue_retry/np.sum(blue_fracs)*100., 1)
+blue_offense_rel  = round(blue_offense/np.sum(blue_fracs)*100. , 1)
+
+print("           Red Forward     Blue Forward", "\n" 
+      " Goals:   ", red_goals, " (-", red_fracs[0], ")      ", blue_goals, " (-", blue_fracs[0], ")", "\n", 
+      "Offense: ", red_offense_rel,  "% (", red_offense, ")   ", blue_offense_rel,  "% (", blue_offense,  ")", "\n",
+      "Retry:   ", red_retry_rel,    "% (", red_retry,   ")   ", blue_retry_rel,    "% (", blue_retry,    ")", "\n",
+      "Turnover:", red_turnover_rel, "% (", red_turnover,")   ", blue_turnover_rel, "% (", blue_turnover, ")", "\n")
+
+red_turnover_total = red_turnover_total + red_turnover 
+red_retry_total    = red_retry_total    + red_retry
+red_offense_total  = red_offense_total  + red_offense
+red_goals_total    = red_goals_total    + red_goals     + blue_fracs[0]
+
+red_turnover_total_rel = round((red_turnover_total_rel + red_turnover_rel)/3, 1)
+red_retry_total_rel    = round((red_retry_total_rel    + red_retry_rel)/3, 1)
+red_offense_total_rel  = round((red_offense_total_rel  + red_offense_rel)/3, 1)
+
+blue_turnover_total = blue_turnover_total + blue_turnover
+blue_retry_total    = blue_retry_total    + blue_retry
+blue_offense_total  = blue_offense_total  + blue_offense
+blue_goals_total    = blue_goals_total    + blue_goals    + red_fracs[0]
+
+blue_turnover_total_rel = round((blue_turnover_total_rel + blue_turnover_rel)/3, 1)
+blue_retry_total_rel    = round((blue_retry_total_rel    + blue_retry_rel)/3, 1)
+blue_offense_total_rel  = round((blue_offense_total_rel  + blue_offense_rel)/3, 1)
+
+
+print("           Red Total       Blue Total", "\n" 
+      " Goals:   ", red_goals_total, "             ", blue_goals_total, "\n", 
+      "Offense: ", red_offense_total_rel,  "% (", red_offense_total, ")   ", blue_offense_total_rel,  "% (", blue_offense_total,  ")", "\n",
+      "Retry:   ", red_retry_total_rel,    "% (", red_retry_total,   ")   ", blue_retry_total_rel,    "% (", blue_retry_total,    ")", "\n",
+      "Turnover:", red_turnover_total_rel, "% (", red_turnover_total,")   ", blue_turnover_total_rel, "% (", blue_turnover_total, ")", "\n")
+
+
+################
+# save total
+print("\n")
+
+import os.path
+fname = 'out/total.npz'
+
+if os.path.isfile(fname):
+    print("Add up")
+    data = np.load(fname)
+    red = data['red'] + np.array([red_turnover_total, red_retry_total, red_offense_total, red_goals_total])
+    red_rel = data['red_rel']/2 + np.array([red_turnover_total_rel, red_retry_total_rel, red_offense_total_rel])/2  
+    blue = data['blue'] + np.array([blue_turnover_total, blue_retry_total, blue_offense_total, blue_goals_total])   
+    blue_rel = data['blue_rel']/2 + np.array([blue_turnover_total_rel, blue_retry_total_rel, blue_offense_total_rel])/2
+    data.close()
+else:
+    print("New")
+    red = np.array([red_turnover_total, red_retry_total, red_offense_total, red_goals_total])
+    red_rel = np.array([red_turnover_total_rel, red_retry_total_rel, red_offense_total_rel])
+    blue = np.array([blue_turnover_total, blue_retry_total, blue_offense_total, blue_goals_total])   
+    blue_rel = np.array([blue_turnover_total_rel, blue_retry_total_rel, blue_offense_total_rel])
+
+np.savez(fname, red=red, red_rel=red_rel, blue=blue, blue_rel=blue_rel)
+
+print("           Red Sum          Blue Sum", "\n" 
+      " Goals:   ", red[3], "             ", blue[3], "\n", 
+      "Offense: ", red_rel[2],  "% (", red[2], ")   ", blue_rel[2],  "% (", blue[2],  ")", "\n",
+      "Retry:   ", red_rel[1],    "% (", red[1],   ")   ", blue_rel[1],    "% (", blue[1],    ")", "\n",
+      "Turnover:", red_rel[0], "% (", red[0],")   ", blue_rel[0], "% (", blue[0], ")", "\n")
